@@ -14,32 +14,24 @@ jobs:
 
     steps:
 
-    # =========================
-    # 1️⃣ Checkout Code
-    # =========================
+    # 1️⃣ Checkout
     - name: Checkout
       uses: actions/checkout@v3
 
-    # =========================
-    # 2️⃣ Setup Java (Backend)
-    # =========================
+    # 2️⃣ Setup Java
     - name: Setup JDK 17
       uses: actions/setup-java@v3
       with:
         distribution: 'temurin'
         java-version: '17'
 
-    # =========================
-    # 3️⃣ Build Backend (Maven)
-    # =========================
+    # 3️⃣ Build Backend
     - name: Build Backend
       run: |
         cd Application/backend
         mvn clean install -DskipTests
 
-    # =========================
-    # 4️⃣ SAST - SonarQube
-    # =========================
+    # 4️⃣ SonarQube (SAST)
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@v2
       with:
@@ -48,9 +40,7 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
-    # =========================
-    # 5️⃣ SCA - Snyk
-    # =========================
+    # 5️⃣ Snyk (SCA)
     - name: Install Snyk
       run: npm install -g snyk
 
@@ -62,62 +52,48 @@ jobs:
         cd Application/backend
         snyk test || true
 
-    # =========================
-    # 6️⃣ Build Docker Images
-    # =========================
+    # 6️⃣ Build Images
     - name: Build Backend Image
-      run: |
-        docker build -t $BACKEND_IMAGE:${{ github.sha }} Application/backend
+      run: docker build -t $BACKEND_IMAGE:${{ github.sha }} Application/backend
 
     - name: Build Frontend Image
-      run: |
-        docker build -t $FRONTEND_IMAGE:${{ github.sha }} Application/frontend
+      run: docker build -t $FRONTEND_IMAGE:${{ github.sha }} Application/frontend
 
-    # =========================
-    # 7️⃣ Container Scan (Trivy)
-    # =========================
+    # 7️⃣ Trivy Scan (FIXED)
     - name: Scan Backend Image
-      uses: aquasecurity/trivy-action@0.20.0
+      uses: aquasecurity/trivy-action@master
       with:
         image-ref: ${{ env.BACKEND_IMAGE }}:${{ github.sha }}
         severity: CRITICAL,HIGH
         exit-code: 1
 
     - name: Scan Frontend Image
-      uses: aquasecurity/trivy-action@0.20.0
+      uses: aquasecurity/trivy-action@master
       with:
         image-ref: ${{ env.FRONTEND_IMAGE }}:${{ github.sha }}
         severity: CRITICAL,HIGH
         exit-code: 1
 
-    # =========================
     # 8️⃣ Docker Login
-    # =========================
     - name: Docker Login
       run: |
         echo "${{ secrets.DOCKER_PASS }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
 
-    # =========================
     # 9️⃣ Push Images
-    # =========================
     - name: Push Backend Image
       run: docker push $BACKEND_IMAGE:${{ github.sha }}
 
     - name: Push Frontend Image
       run: docker push $FRONTEND_IMAGE:${{ github.sha }}
 
-    # =========================
-    # 🔟 Update Manifest Repo
-    # =========================
+    # 🔟 Update Manifest Repo (FIX USERNAME HERE)
     - name: Update Manifest Repo
       run: |
-        git clone https://${{ secrets.GIT_TOKEN }}@github.com/<your-username>/manifest-repo.git
+        git clone https://${{ secrets.GIT_TOKEN }}@github.com/YOUR_USERNAME/manifest-repo.git
         
-        # Update Backend
         cd manifest-repo/backend
         sed -i "s|image: .*|image: $BACKEND_IMAGE:${{ github.sha }}|g" deployment.yaml
 
-        # Update Frontend
         cd ../frontend
         sed -i "s|image: .*|image: $FRONTEND_IMAGE:${{ github.sha }}|g" deployment.yaml
 
@@ -127,4 +103,4 @@ jobs:
         git config user.email "actions@github.com"
         git add .
         git commit -m "Update images to ${{ github.sha }}"
-        git push
+        git push origin main
