@@ -33,13 +33,11 @@ jobs:
 
     # 4️⃣ SonarQube (FIXED - Maven way)
     - name: SonarQube Scan
-      run: |
-       cd Application/backend
-       mvn sonar:sonar \
-          -Dsonar.projectKey=turkardiksha345-oss_DevOps-GitOps-Project \
-          -Dsonar.organization=turkardiksha345-oss \
-          -Dsonar.host.url=https://sonarcloud.io
-          -Dsonar.login=${{ secrets.SONAR_TOKEN1 }}
+      uses: SonarSource/sonarcloud-github-action@v2
+      with:
+       projectBaseDir: Application/backend
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN1 }}
 
 
     # 5️⃣ Snyk (SCA)
