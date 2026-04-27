@@ -31,14 +31,14 @@ jobs:
         cd Application/backend
         mvn clean install -DskipTests
 
-    # 4️⃣ SonarQube (SAST)
+    # 4️⃣ SonarQube (FIXED - Maven way)
     - name: SonarQube Scan
-      uses: sonarsource/sonarqube-scan-action@v2
-      with:
-        projectBaseDir: Application/backend
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      run: |
+        cd Application/backend
+        mvn sonar:sonar \
+          -Dsonar.projectKey=student-app \
+          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
     # 5️⃣ Snyk (SCA)
     - name: Install Snyk
@@ -52,7 +52,7 @@ jobs:
         cd Application/backend
         snyk test || true
 
-    # 6️⃣ Build Images
+    # 6️⃣ Build Docker Images
     - name: Build Backend Image
       run: docker build -t $BACKEND_IMAGE:${{ github.sha }} Application/backend
 
@@ -86,11 +86,11 @@ jobs:
     - name: Push Frontend Image
       run: docker push $FRONTEND_IMAGE:${{ github.sha }}
 
-    # 🔟 Update Manifest Repo (FIX USERNAME HERE)
+    # 🔟 Update Manifest Repo
     - name: Update Manifest Repo
       run: |
         git clone https://${{ secrets.GIT_TOKEN }}@github.com/YOUR_USERNAME/manifest-repo.git
-        
+
         cd manifest-repo/backend
         sed -i "s|image: .*|image: $BACKEND_IMAGE:${{ github.sha }}|g" deployment.yaml
 
@@ -102,5 +102,5 @@ jobs:
         git config user.name "github-actions"
         git config user.email "actions@github.com"
         git add .
-        git commit -m "Update images to ${{ github.sha }}"
+        git commit -m "Update images to ${{ github.sha }}" || echo "No changes to commit"
         git push origin main
