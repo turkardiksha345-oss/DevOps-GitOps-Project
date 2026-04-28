@@ -149,4 +149,33 @@ jobs:
           git commit -m "Update images to ${{ github.sha }}" || echo "No changes"
           git push origin main
 
-  
+# =========================
+# 4️⃣ DAST SCAN (STACKHAWK)
+# =========================
+
+  dast_scan:
+    runs-on: ubuntu-latest
+    needs: build_and_scan   # runs after build & scan
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # 🐳 Start Application using Docker Compose
+      - name: Start Application
+        run: docker-compose -f Application/docker-compose.yml up -d
+
+      # ⏳ Wait for Backend to be ready
+      - name: Wait for Backend
+        run: sleep 40
+
+      # 🔍 Debug (optional but useful)
+      - name: Check Running Containers
+        run: docker ps
+
+      # 🦅 StackHawk Scan
+      - name: Run StackHawk Scan
+        uses: stackhawk/hawk-action@v2
+        with:
+          apiKey: ${{ secrets.STACKHAWK_API_KEY }}
