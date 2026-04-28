@@ -176,6 +176,6 @@ jobs:
 
       # 🦅 StackHawk Scan
       - name: Run StackHawk Scan
-        uses: stackhawk/hawk-action@v2
+        uses: stackhawk/hawkscan-action@v2
         with:
           apiKey: ${{ secrets.STACKHAWK_API_KEY }}
