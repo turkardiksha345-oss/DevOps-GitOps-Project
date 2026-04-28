@@ -1,7 +1,7 @@
 app:
   applicationId: ad92a72d-e7d4-4aa3-b54f-37ce6d3a706d
   env: dev
-  host: http://localhost:8080
+  host: http://backend:8080
 
 hawk:
   spider:
