@@ -22,24 +22,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout
       - name: Checkout
         uses: actions/checkout@v3
 
-      # Setup Java
       - name: Setup JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: "temurin"
           java-version: "17"
 
-      # ✅ BUILD FIRST (FIXED)
       - name: Build Backend
         run: |
           cd Application/backend
           mvn clean install -DskipTests
 
-      # ✅ Sonar AFTER BUILD (FIXED)
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
         with:
@@ -47,7 +43,6 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN1 }}
 
-      # ✅ Snyk (SCA)
       - name: Install Snyk
         run: npm install -g snyk
 
@@ -70,14 +65,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      # Build images
       - name: Build Backend Image
         run: docker build -t $DOCKER_USERNAME/backend:${{ github.sha }} Application/backend
 
       - name: Build Frontend Image
         run: docker build -t $DOCKER_USERNAME/frontend:${{ github.sha }} Application/frontend
 
-      # Trivy scan
       - name: Scan Backend Image
         uses: aquasecurity/trivy-action@master
         with:
@@ -93,7 +86,7 @@ jobs:
           exit-code: 0
 
 # =========================
-# 3️⃣ PUSH IMAGES
+# 3️⃣ PUSH IMAGES (FIXED 🔥)
 # =========================
   push_images:
     runs-on: ubuntu-latest
@@ -101,6 +94,16 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # 🔥 IMPORTANT: BUILD AGAIN
+      - name: Build Backend Image
+        run: docker build -t $DOCKER_USERNAME/backend:${{ github.sha }} Application/backend
+
+      - name: Build Frontend Image
+        run: docker build -t $DOCKER_USERNAME/frontend:${{ github.sha }} Application/frontend
+
       - name: Docker Login
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
