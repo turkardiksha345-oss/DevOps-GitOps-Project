@@ -179,3 +179,8 @@ jobs:
         uses: stackhawk/hawkscan-action@v2
         with:
           apiKey: ${{ secrets.HAWK_API_KEY }}
+
+      - name: Debug Containers
+        run: |
+          docker ps
+          docker logs student_backend
