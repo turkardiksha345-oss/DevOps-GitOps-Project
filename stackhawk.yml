@@ -9,11 +9,6 @@ hawk:
   scan:
     method: ajax
 
-auth:
-  # optional (only if auth needed)
-  loggedInIndicator: "200"
-  loggedOutIndicator: "401"
-
 reporting:
   output:
     format: json
