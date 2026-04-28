@@ -162,10 +162,11 @@ jobs:
         uses: actions/checkout@v3
 
       # 🔥 Install StackHawk CLI
-      - name: Install Hawk CLI
+      - name: Install Hawk CLI (FIXED)
         run: |
-          curl -sL https://github.com/stackhawk/hawk/releases/latest/download/hawk-linux-amd64 -o hawk
-          chmod +x hawk
+         curl -L https://github.com/stackhawk/hawk/releases/download/v3.8.0/hawk-linux-amd64 -o hawk
+         chmod +x hawk
+         ./hawk version
 
       # 🔥 Run Scan
       - name: Run StackHawk Scan
