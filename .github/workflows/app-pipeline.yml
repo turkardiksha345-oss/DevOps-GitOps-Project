@@ -132,13 +132,13 @@ jobs:
 
       - name: Update Backend Image
         run: |
-          cd manifest/backend
-          sed -i "s|image: .*|image: $DOCKER_USERNAME/student-backend:${{ github.sha }}|g" deployment.yaml
+          cd manifest/
+          sed -i "s|image: .*|image: $DOCKER_USERNAME/student-backend:${{ github.sha }}|g" app.yaml
 
       - name: Update Frontend Image
         run: |
-          cd manifest/frontend
-          sed -i "s|image: .*|image: $DOCKER_USERNAME/student-frontend:${{ github.sha }}|g" deployment.yaml
+          cd manifest/
+          sed -i "s|image: .*|image: $DOCKER_USERNAME/student-frontend:${{ github.sha }}|g" app.yaml
 
       - name: Commit & Push
         run: |
