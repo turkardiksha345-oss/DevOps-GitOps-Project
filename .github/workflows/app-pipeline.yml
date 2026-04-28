@@ -148,3 +148,34 @@ jobs:
           git add .
           git commit -m "Update images to ${{ github.sha }}" || echo "No changes"
           git push origin main
+
+# =========================
+# 5️⃣ DAST (STACKHAWK)
+# =========================
+  dast_stackhawk:
+    runs-on: ubuntu-latest
+    needs: update_manifest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # 🔥 Install StackHawk CLI
+      - name: Install Hawk CLI
+        run: |
+          curl -sL https://github.com/stackhawk/hawk/releases/latest/download/hawk-linux-amd64 -o hawk
+          chmod +x hawk
+
+      # 🔥 Run Scan
+      - name: Run StackHawk Scan
+        env:
+          HAWK_API_KEY: ${{ secrets.HAWK_API_KEY }}
+        run: |
+          ./hawk scan \
+            --application-id ad92a72d-e7d4-4aa3-b54f-37ce6d3a706d \
+            --env dev \
+            --host http://a2ec43759f25e42e6b76c4c6cea596a8-1275388669.eu-north-1.elb.amazonaws.com \
+            --exclude-paths "/health,/actuator" \
+            --ajax-spider \
+            --max-scan-duration-minutes 15

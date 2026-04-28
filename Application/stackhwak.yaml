@@ -1,0 +1,20 @@
+hawk:
+  apiKey: ${HAWK_API_KEY}
+
+app:
+  applicationId: ad92a72d-e7d4-4aa3-b54f-37ce6d3a706d   # 🔥 from StackHawk dashboard
+  env: dev
+
+  host: http://a2ec43759f25e42e6b76c4c6cea596a8-1275388669.eu-north-1.elb.amazonaws.com   # 🔥 your app's internal URL (for ArgoCD, it's the service URL)
+
+  openApiConf:
+    filePath: ./openapi.yaml   # optional (if you have)
+
+scan:
+  excludePaths:
+    - /health
+    - /actuator
+
+  ajaxSpider: true
+
+  maxScanDurationMinutes: 15
