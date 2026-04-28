@@ -164,7 +164,7 @@ jobs:
 
       # 🐳 Start Application using Docker Compose
       - name: Start Application
-        run: docker-compose -f Application/docker-compose.yml up -d
+        run: docker compose -f Application/docker-compose.yml up -d
 
       # ⏳ Wait for Backend to be ready
       - name: Wait for Backend
