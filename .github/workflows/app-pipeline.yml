@@ -132,12 +132,12 @@ jobs:
 
       - name: Update Backend Image
         run: |
-          cd manifest/
+          cd manifest/argocd
           sed -i "s|image: .*|image: $DOCKER_USERNAME/student-backend:${{ github.sha }}|g" app.yaml
 
       - name: Update Frontend Image
         run: |
-          cd manifest/
+          cd manifest/argocd
           sed -i "s|image: .*|image: $DOCKER_USERNAME/student-frontend:${{ github.sha }}|g" app.yaml
 
       - name: Commit & Push
